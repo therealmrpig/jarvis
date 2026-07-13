@@ -1,7 +1,7 @@
 # J.A.R.V.I.S. Architecture (Reconstruction in progress)
 
 ## Overview
-*Status: Being reworked. Previous specs (`architecture-spec.md`, `domain-architecture.md`) are slated for deletion.*
+*Status: Stable development.*
 
 ## Core Roles
 

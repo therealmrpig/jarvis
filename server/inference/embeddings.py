@@ -1,12 +1,9 @@
-import sentence-transformers
-from typing import List
+import asyncio
+from sentence_transformers import SentenceTransformer
 
 class EmbeddingsModule:
     def __init__(self, model_name: str):
-        pass
+        self.model = SentenceTransformer(model_name)
 
-    def embed_string(self, text: str) -> List[float]:
-        pass
-    
-    def embed_batch(self, texts: List[str]) -> List[List[float]]:
-        pass
+    async def embed_string(self, text: str) -> list[float]:
+        embedding = await asyncio.to_thread(self.model.encode, text)

@@ -1,7 +1,7 @@
 import queue
 import numpy as np
 from threading import Thread, Event
-from silero-vad-lite import SileroVAD
+from silero_vad_lite import SileroVAD
 
 class VADModule:
     def __init__(self, audio_queue: queue.Queue, on_silence: callable):

@@ -9,5 +9,6 @@ dependencies = [
     "openwakeword>=0.6.0",
     "sentence-transformers>=5.6.0",
     "silero-vad-lite>=0.2.1",
+    "sqlite-vec>=0.1.9",
     "websockets>=16.1",
 ]

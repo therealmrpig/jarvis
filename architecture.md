@@ -36,10 +36,9 @@ An intermediary that implements the "Function Calling" loop. It intercepts tool-
 ## Data & Memory Architecture
 
 ### Multi-Tenancy & Isolation
-To ensure absolute privacy and prevent cross-context "noise," **each user is assigned a completely separate memory database.**
-- **Isolation**: A `session_id` (username) maps to a dedicated, isolated database instance. 
-- **Zero Leakage**: No retrieval operation can access data from another user's database.
-- **On-Demand Provisioning**: Databases are created lazily by the STM Orchestrator only when a session requires persistence.
+To ensure absolute privacy and prevent cross-context "noise," **data is partitioned by user within the shared database.**
+- **Isolation**: A `session_id` (username) filters all queries to ensure zero leakage between users. 
+- **Zero Leakage**: No retrieval operation can access data from another user's partition.
 
 ### Memory Retrieval Mechanism
 During the generation phase in `ConversationOrchestrator`:

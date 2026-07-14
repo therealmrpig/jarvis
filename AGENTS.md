@@ -14,5 +14,5 @@ After loading the files run the `tree -L 5` command using the bash tool.
 ## Core Architectural Principles
 - **Asynchronous Task-Future Pattern**: Orchestrators trigger heavy modules (LLM/Embeddings) via queues and `await` their results via `asyncio.Future`.
 - **Reactive Dispatching**: The `entrypoint` does not block; it dispatches events to orchestrators, which manage their own lifecycle and interruption (Barge-in) logic.
-- **Multi-Tenant Isolation**: Every user is assigned a distinct, isolated database instance.
+- **Multi-Tenant Isolation**: Each user's data is logically isolated within the shared database using a unique `user/session_id`.
 - **Lazy Provisioning**: Databases are only created when the `STM` orchestrator confirms a session needs persistence.

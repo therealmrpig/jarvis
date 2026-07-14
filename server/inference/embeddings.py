@@ -7,3 +7,4 @@ class EmbeddingsModule:
 
     async def embed_string(self, text: str) -> list[float]:
         embedding = await asyncio.to_thread(self.model.encode, text)
+        return embedding

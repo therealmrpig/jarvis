@@ -1,0 +1,12 @@
+[project]
+name = "jarvis"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "asyncio>=4.0.0",
+    "openwakeword>=0.6.0",
+    "silero-vad-lite>=0.2.1",
+    "websockets>=16.1",
+]

@@ -8,6 +8,7 @@ J.A.R.V.I.S. is a local, multi-tenant, AI-powered voice assistant. It operates a
 
 1.  `architecture.md`: The Single Source of Truth (SSoT) for the system's design, protocol, and logic.
 
+After loading the files run the `tree -L 5` command using the bash tool.
 ---
 
 ## Core Architectural Principles

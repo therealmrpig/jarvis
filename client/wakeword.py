@@ -1,4 +1,5 @@
 import numpy as np
+import queue
 from threading import Thread
 from openwakeword.model import Model
 

@@ -6,6 +6,7 @@ readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
     "asyncio>=4.0.0",
+    "ollama>=0.6.2",
     "openwakeword>=0.6.0",
     "sentence-transformers>=5.6.0",
     "silero-vad-lite>=0.2.1",

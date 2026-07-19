@@ -37,7 +37,7 @@ class ConversationOrchestrator:
             while (token := await q.get()) is not None:
                 yield token
 
-    async def _run_inference_process(self, user_input: str, q: asyncio.Queue) -> AsyncIterator[str]:
+    async def _run_inference_process(self, user_input: str, q: asyncio.Queue) -> None:
         augmented_messages = list(self._history)
         try:
             query_vec = await self._embeddings.embed_string(user_input)
@@ -48,9 +48,12 @@ class ConversationOrchestrator:
         except Exception:
             pass
 
-        async for token in self._run_inference_loop(augmented_messages):
-            await q.put(token)
-        await q.put(None)
+        try:
+            async for token in self._run_inference_loop(augmented_messages):
+                await q.put(token)
+            await q.put(None)
+        finally:
+            await q.put(None)
 
     async def _run_inference_loop(self, messages: list[dict[str, str]]) -> AsyncIterator[str]:
         token_buffer = ""

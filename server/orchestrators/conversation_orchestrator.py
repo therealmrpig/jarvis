@@ -30,6 +30,10 @@ class ConversationOrchestrator:
             user_input = payload.get("text", "")
             if not user_input:
                 return
+            
+            if self._active_task and not self._active_task.done():
+                self._active_task.cancel()
+
             self._append_to_history("user", user_input)
             loop = asyncio.get_running_loop()
             q = asyncio.Queue()
@@ -46,7 +50,7 @@ class ConversationOrchestrator:
         augmented_messages = list(self._history)
         try:
             query_vec = await self._embeddings.embed_string(user_input)
-            memories = self._db.search(self._user_id, query_vec, k=5)
+            memories = await asyncio.to_thread(self._db.search, self._user_id, query_vec, k=5)
             if memories:
                 context = "\n".join(["- " + m['text'] for m in memories])
                 augmented_messages.append({"role": "system", "content": f"Context:\n{context}"})
@@ -56,6 +60,8 @@ class ConversationOrchestrator:
         try:
             async for token in self._run_inference_loop(augmented_messages):
                 await q.put(token)
+        except asyncio.CancelledError:
+            pass
         finally:
             await q.put(None)
 
@@ -74,7 +80,13 @@ class ConversationOrchestrator:
                 tool_call = json.loads(tool_match.group(1))
                 result = await self._executor.execute(tool_call)
                 self._append_to_history("tool", str(result))
-                async for next_token in self._run_inference_loop(list(self._history)):
+
+                next_messages = list(messages)
+                if token_buffer.strip():
+                    next_messages.append({"role": "assistant", "content": token_buffer})
+                next_messages.append({"role": "tool", "content": str(result)})
+
+                async for next_token in self._run_inference_loop(next_messages):
                     yield next_token
             except Exception as e:
                 err = f"Error executing tool: {str(e)}"

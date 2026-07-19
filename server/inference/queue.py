@@ -4,9 +4,9 @@ from typing import Any, Optional, AsyncIterator
 
 
 class InferenceRequest:
-    def __init__(self, messages: list, user_id: str, request_type: str, token_queue: asyncio.Queue):
+    def __init__(self, messages: list, session_id: str, request_type: str, token_queue: asyncio.Queue):
         self.messages = messages
-        self.user_id = user_id
+        self.session_id = session_id
         self.request_type = request_type
         self.token_queue = token_queue
 
@@ -20,18 +20,18 @@ class QueueModule:
         self._active_request: Optional[InferenceRequest] = None
         self._worker_loop_task = asyncio.create_task(self._worker_loop())
 
-    async def barge_in(self, user_id: str) -> None:
+    async def barge_in(self, session_id: str) -> None:
         if self._active_request:
-            if self._active_request.user_id == user_id:
+            if self._active_request.session_id == session_id:
                 if self._active_request.request_type == "conversation":
                     if self._active_generation_task:
                         self._active_generation_task.cancel()
 
-    async def submit(self, user_id: str, messages: list, request_type: str = "background") -> AsyncIterator[str]:
+    async def submit(self, session_id: str, messages: list, request_type: str = "background") -> AsyncIterator[str]:
         token_queue = asyncio.Queue()
         request = InferenceRequest(
             messages,
-            user_id,
+            session_id,
             request_type,
             token_queue
         )

@@ -2,9 +2,11 @@ import asyncio
 import itertools
 from typing import Any, Optional, AsyncIterator
 
+
 class InferenceRequest:
-    def __init__(self, context: str, request_type: str, token_queue: asyncio.Queue):
+    def __init__(self, context: str, user_id: str, request_type: str, token_queue: asyncio.Queue):
         self.context = context
+        self.user_id = user_id
         self.request_type = request_type
         self.token_queue = token_queue
 
@@ -18,15 +20,21 @@ class QueueModule:
         self._active_request: Optional[InferenceRequest] = None
         self._worker_loop_task = asyncio.create_task(self._worker_loop())
 
-    async def barge_in(self) -> None:
+    async def barge_in(self, user_id: str) -> None:
         if self._active_request:
-            if self._active_request.request_type == "conversation":
-                if self._active_generation_task:
-                    self._active_generation_task.cancel()
+            if self._active_request.user_id == user_id:
+                if self._active_request.request_type == "conversation":
+                    if self._active_generation_task:
+                        self._active_generation_task.cancel()
 
-    async def submit(self, context: str, request_type: str = "background") -> AsyncIterator[str]:
+    async def submit(self, user_id: str, context: str, request_type: str = "background") -> AsyncIterator[str]:
         token_queue = asyncio.Queue()
-        request = InferenceRequest(context, request_type, token_queue)
+        request = InferenceRequest(
+            context,
+            user_id,
+            request_type,
+            token_queue
+        )
 
         if request_type == "conversation":
             order = 0
@@ -64,7 +72,9 @@ class QueueModule:
         try:
             async for token in self._engine.generate(request.context):
                 await request.token_queue.put(token)
+
             await request.token_queue.put(None)
+
         except asyncio.CancelledError:
             await request.token_queue.put(None)
             raise

@@ -4,8 +4,8 @@ from typing import Any, Optional, AsyncIterator
 
 
 class InferenceRequest:
-    def __init__(self, context: str, user_id: str, request_type: str, token_queue: asyncio.Queue):
-        self.context = context
+    def __init__(self, messages: list, user_id: str, request_type: str, token_queue: asyncio.Queue):
+        self.messages = messages
         self.user_id = user_id
         self.request_type = request_type
         self.token_queue = token_queue
@@ -27,10 +27,10 @@ class QueueModule:
                     if self._active_generation_task:
                         self._active_generation_task.cancel()
 
-    async def submit(self, user_id: str, context: str, request_type: str = "background") -> AsyncIterator[str]:
+    async def submit(self, user_id: str, messages: list, request_type: str = "background") -> AsyncIterator[str]:
         token_queue = asyncio.Queue()
         request = InferenceRequest(
-            context,
+            messages,
             user_id,
             request_type,
             token_queue
@@ -70,7 +70,7 @@ class QueueModule:
 
     async def _run_inference(self, request: InferenceRequest) -> None:
         try:
-            async for token in self._engine.generate(request.context):
+            async for token in self._engine.generate(request.messages):
                 await request.token_queue.put(token)
 
             await request.token_queue.put(None)

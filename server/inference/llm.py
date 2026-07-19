@@ -7,15 +7,10 @@ class LanguageModelModule:
         self._client = ollama.AsyncClient()
         self._model = model
 
-    async def generate(self, context: str) -> AsyncIterator[str]:
+    async def generate(self, messages: list) -> AsyncIterator[str]:
         response = await self._client.chat(
             model=self._model,
-            messages=[
-                {
-                    "role": "user",
-                    "content": context
-                }
-            ],
+            messages=messages,
             stream=True
         )
 

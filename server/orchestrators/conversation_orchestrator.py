@@ -34,8 +34,13 @@ class ConversationOrchestrator:
             loop = asyncio.get_running_loop()
             q = asyncio.Queue()
             self._active_task = loop.create_task(self._run_inference_process(user_input, q))
-            while (token := await q.get()) is not None:
-                yield token
+            try:
+                while (token := await q.get()) is not None:
+                    yield token
+            except asyncio.CancelledError:
+                if self._active_task and not self._active_task.done():
+                    self._active_task.cancel()
+                raise
 
     async def _run_inference_process(self, user_input: str, q: asyncio.Queue) -> None:
         augmented_messages = list(self._history)
@@ -51,7 +56,6 @@ class ConversationOrchestrator:
         try:
             async for token in self._run_inference_loop(augmented_messages):
                 await q.put(token)
-            await q.put(None)
         finally:
             await q.put(None)
 

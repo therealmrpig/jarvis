@@ -4,7 +4,7 @@ import json
 import asyncio
 
 from server.inference.queue import QueueModule
-from server_memory.db_handler import DatabaseHandler
+from server.memory.db_handler import DatabaseHandler
 from server.tools.executor import ToolExecutor
 from server.inference.embeddings import EmbeddingsModule
 
